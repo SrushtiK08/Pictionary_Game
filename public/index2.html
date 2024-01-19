@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Drawing Room</title>
+  <link rel="stylesheet" href="style2.css">
+</head>
+<body>
+
+  <div id="leftPart">
+    <div id="userList">
+      <h2>Users Joined</h2>
+      <!-- Display the list of users joined -->
+      <ul id="joinedUsersList"></ul>
+    </div>
+    <div id="roomControls">
+      <button id="startGameBtn">Start Game</button>
+      <button id="leaveRoomBtn">Leave Room</button>
+    </div>
+    <div id="roomCode">
+      <h3>Your Room Code:</h3>
+      <p id="roomCodeValue">ABC123</p>
+    </div>
+  </div>
+
+  <div id="middlePart">
+    <header>
+      <h1>Time Remaining: <span id="countdown">60s</span></h1>
+      <h2>Word to Guess: <span id="wordToGuess">Example</span></h2>
+    </header>
+    <canvas id="drawingCanvas" width="600" height="400"></canvas>
+    <div id="drawTools">
+      <label for="brushColor">Brush Color:</label>
+      <input type="color" id="brushColor" value="#000000">
+      <label for="brushSize">Brush Size:</label>
+      <input type="range" id="brushSize" min="1" max="20" value="5">
+      <button id="eraserBtn">Clear</button>
+    </div>
+  </div>
+
+  <div id="rightPart">
+    <div id="msgBox">
+      <div id="msgs">
+        <!-- Display chat messages here -->
+      </div>
+      <div id="msgInputs">
+        <input type="text" id="messageInput" placeholder="Type your message...">
+        <button id="sendMsgBtn">Send</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app2.js"></script>
+</body>
+</html>

@@ -1,0 +1,118 @@
+/* styles.css */
+body {
+    margin: 0;
+    padding: 0;
+    display: flex;
+    height: 100vh;
+  }
+  h1 {
+    background: #45702c;
+    background: -webkit-linear-gradient(to right, #063d06, #86e7a6, #075311);
+    background: linear-gradient(to right,#063d06, #86e7a6, #075311);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+h2 {
+    background: #45702c;
+    background: -webkit-linear-gradient(to right, #063d06, #86e7a6, #075311);
+    background: linear-gradient(to right,#063d06, #86e7a6, #075311);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+
+  #leftPart, #middlePart, #rightPart {
+    width: 20%;
+    padding: 20px;
+    box-sizing: border-box;
+    background-color: #f2f2f2;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  #leftPart {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  #userList {
+    flex-grow: 1;
+  }
+  
+  #roomControls, #roomCode {
+    margin-top: 20px;
+  }
+  
+  #roomControls button {
+    background-color: #4caf50; /* Green color for buttons */
+    color: #fff;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    width: 100%;
+    margin-bottom: 10px; /* Added margin to create space between buttons */
+  }
+  
+  #middlePart {
+    width: 60%;
+    padding: 20px;
+    box-sizing: border-box;
+    background-color: #f2f2f2;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  header {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  
+  #countdown,
+  #wordToGuess {
+    display: inline-block;
+  }
+  
+  canvas {
+    border: 1px solid #ccc;
+  }
+  
+  #drawTools {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+  }
+  
+  #rightPart {
+    width: 20%;
+    padding: 20px;
+    box-sizing: border-box;
+    background-color: #f2f2f2;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+  }
+  
+  #msgBox {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  #msgs {
+    flex-grow: 1;
+    overflow-y: auto;
+    border-bottom: 1px solid #ccc;
+  }
+  
+  #msgInputs {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 10px;
+  }
+  
