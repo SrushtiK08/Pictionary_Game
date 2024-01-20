@@ -1,4 +1,13 @@
 /* styles.css */
+
+:root {
+	--dark-color-a: #63b90e;
+	--dark-color-b: #0a6a08;
+	--light-color: #adda7b;
+	--success-color: #95eab9;
+	--error-color: #d9534f;
+}
+
 body {
     margin: 0;
     padding: 0;
@@ -103,13 +112,29 @@ h2 {
     flex-direction: column;
     overflow-y: auto;
   }
-  
-  .msgs {
-    /* margin-bottom: 2px; */
-    padding: 1px;
-    background-color: #f9f9f9;
-    /* border-radius: 8px; */
+
+  .msgBox .msgs{
+    padding: 10px;
+	margin-bottom: 15px;
+	background-color: var(--light-color);
+	border-radius: 5px;
+	overflow-wrap: break-word;
   }
+
+  .msgBox .msgs .meta{
+    font-size: 15px;
+	font-weight: bold;
+	color: var(--dark-color-b);
+	opacity: 0.7;
+	margin-bottom: 7px;
+  }
+  
+  /* .msgs {
+    /* margin-bottom: 2px; */
+    /* padding: 1px; */
+    /* background-color: #f9f9f9; */
+    /* border-radius: 8px; */
+  /* }  */
   
   .msgInputs {
     display: flex;

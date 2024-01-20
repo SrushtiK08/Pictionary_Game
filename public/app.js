@@ -6,19 +6,28 @@ const port = 3000;
 const msgform = document.getElementById('msg-form');
 const chtMessages = document.querySelector('.msgBox');
 
-const socket = io.connect('http://localhost:3000/');
+const socket = io();
 
+//getting username and room  from URL 
+// const {username,room} = Qs.parse(location.search);
 
 //Message from Server
 socket.on('message',message=>{
-    // console.log(message);
-
+    console.log(message);
+    // console.log('I ma here')
     //function for outing the message in the msg box
     outputMessage(message);
     
 
     //automated scrolling of the messgae tab
     chtMessages.scrollTop = chtMessages.scrollHeight;
+});
+
+socket.on('user-connected', ({ username, roomID }) => {
+    // Do something with the username and roomID, for example, store them in a variable
+    console.log(`Connected: ${username} in room ${roomID}`);
+    console.log('I ma here')
+    // Now you can use the username and roomID as needed in your client-side code
 });
 
 
@@ -43,7 +52,8 @@ msgform.addEventListener('submit',(e)=>{
 function outputMessage(message){
     const div = document.createElement('div');
     div.classList.add('msgInputs');
-    div.innerHTML = `<p> ${message} </p>`;
+    div.innerHTML = `<p class="meta"> ${message.username} <span>${message.time}</span> </p>
+    <p class="text"> ${message.text}</p>`;
 
     document.querySelector('.msgBox').appendChild(div);
 }

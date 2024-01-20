@@ -7,7 +7,8 @@ const express = require("express");
 const { connect } = require('http2');
 const bodyParser = require("body-parser");
 const socketio = require('socket.io')
-
+const formatMessage = require('./helpers/msgs');
+const botName = 'Game Bot';
 
 const app = express();
 // app.use(cors());
@@ -32,19 +33,21 @@ io.on('connection', (socket) => {
   // console.log('a user connected');
   
   //welcome current
-  socket.emit('message','Welcome to the game');
+  socket.emit('message',formatMessage(botName,'Welcome to the game'));
 
   //Broadcasting for not to send
-  socket.broadcast.emit('message','A user has joined the chat');
+  socket.broadcast.emit('message',formatMessage(botName,'A user has joined the chat'));
 
   socket.on('disconnect', () => {
-    io.emit('message','A user has left the chat');
+    io.emit('message',formatMessage(botName,'A user has left the chat'));
   });
 
   //Listening from the chatmessage
   socket.on('chatMessage',msg=>{
-    io.emit('message',msg);
-  })
+    io.emit('message',formatMessage('USER',msg));
+  });
+
+  // socket.emit('user-connected', { username, roomID });
 });
 
 
@@ -70,6 +73,7 @@ app.post('/', (req, res) => {
         rooms[roomID].users.push(username);
 
         // Redirect to the second page with the room code
+        socket.emit('user-connected', { username, roomID });
         res.sendFile(path.join(__dirname, 'public', 'index2.html'));
     } else {
         res.send('Room not found');
@@ -88,6 +92,7 @@ app.post('/', (req, res) => {
     };
     console.log(username);
 
+    socket.emit('user-connected', { username, roomCode });
     // Redirect to the second page with the room code in query parameters
     res.sendFile(path.join(__dirname, 'public', 'index2.html'));
   }
