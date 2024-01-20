@@ -1,109 +1,82 @@
 const path = require("path");
 const http = require("http");
 const express = require("express");
-// const socketio = require("socket.io");
-// const { Server } = require('socket.io');
-// const cors = require('cors')
-const { connect } = require('http2');
-const bodyParser = require("body-parser");
-const socketio = require('socket.io')
+const socketio = require('socket.io');
 const formatMessage = require('./helpers/msgs');
+const {userJoin , getCurrentUser , userLeaves , getRoomUsers} = require('./helpers/users');
 const botName = 'Game Bot';
 
 const app = express();
-// app.use(cors());
 const server = http.createServer(app);
-// const io = socketio(server);
-// const io = new Server(server, {
-//   cors: {
-//     origin: 'http://localhost:3000',
-//     methods:['GET', 'POST']
-//   }
-// });
 const io = socketio(server);
 
-
-const port = 3000
+const port = 3000;
 
 server.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
 
-io.on('connection', (socket) => {
-  // console.log('a user connected');
-  
-  //welcome current
-  socket.emit('message',formatMessage(botName,'Welcome to the game'));
-
-  //Broadcasting for not to send
-  socket.broadcast.emit('message',formatMessage(botName,'A user has joined the chat'));
-
-  socket.on('disconnect', () => {
-    io.emit('message',formatMessage(botName,'A user has left the chat'));
-  });
-
-  //Listening from the chatmessage
-  socket.on('chatMessage',msg=>{
-    io.emit('message',formatMessage('USER',msg));
-  });
-
-  // socket.emit('user-connected', { username, roomID });
-});
-
-
-app.use(express.static('public'));
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(express.json());
-
 // Room data storage
 var rooms = {};
 
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
+io.on('connection', (socket) => {
 
-app.post('/', (req, res) => {
-  //Handle Create room
+  socket.on('joinRoom', ({username,roomID})=>{
+    const user = userJoin(socket.id,username,roomID);
+    socket.join(user.roomID);
+    // Welcome current user
+  socket.emit('message', formatMessage(botName, 'Welcome to the game'));
+
+  // Broadcasting for others not to send
+  socket.broadcast.to(user.roomID).emit('message', formatMessage(botName, `${user.username} has joined the room`));
+
+  //send users and rooms info
+  io.to(user.roomID).emit('roomUsers',{
+    room: user.roomID,
+    users: getRoomUsers(user.roomID)
+  });
+
+  });
+
+  console.log('a user connected');
+
   
-  if(req.body.roomID){
-    const { username, roomID } = req.body;
-    // Check if the room exists
-    if (rooms[roomID]) {
-        // Add the user to the room
-        rooms[roomID].users.push(username);
 
-        // Redirect to the second page with the room code
-        socket.emit('user-connected', { username, roomID });
-        res.sendFile(path.join(__dirname, 'public', 'index2.html'));
-    } else {
-        res.send('Room not found');
+ 
+
+  // Listening for chat messages
+  socket.on('chatMessage', (msg) => {
+    const user = getCurrentUser(socket.id);
+    io.to(user.roomID).emit('message', formatMessage(user.username, msg));
+  });
+
+  socket.on('disconnect', () => {
+    const user = userLeaves(socket.id);
+
+    if(user){
+      io.to(user.roomID).emit('message', formatMessage(botName, `${user.username} has left the chat` ));
     }
-  }
-  else{
-    const { username } = req.body;
+
+    //send users and rooms info
+  io.to(user.roomID).emit('roomUsers',{
+    room: user.roomID,
+    users: getRoomUsers(user.roomID)
+  });
+
+
     
-    // Generate a random room code (for simplicity, you might want to use a more secure method)
-    const roomCode = generateRoomCode();
-    console.log(username);
-
-    // Store room data
-    rooms[roomCode] = {
-        users: [username],
-    };
-    console.log(username);
-
-    socket.emit('user-connected', { username, roomCode });
-    // Redirect to the second page with the room code in query parameters
-    res.sendFile(path.join(__dirname, 'public', 'index2.html'));
-  }
-    
-
-
+  });
+  
 });
 
+app.use(express.static('public'));
+
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
 
 function generateRoomCode() {
-    var ans = Math.random().toString(36).substring(2, 8).toUpperCase();
-    console.log(ans);
-    return ans;
+  var ans = Math.random().toString(36).substring(2, 8).toUpperCase();
+  console.log(ans);
+  return ans;
 }

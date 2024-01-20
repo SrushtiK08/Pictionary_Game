@@ -14,7 +14,7 @@
         <h1>Pictionary Game - Play with your friends</h1>
 
         <!-- Create Room Form -->
-        <form id="createRoomForm" action="/" method="post">
+        <form id="createRoomForm" action="index2.html">
             <center><h2>Create a Room</h2></center>
             <label for="username"><center><h3>Username:</h3></center></label>
             <input type="text" id="username" name="username" placeholder="Enter your username" required>
@@ -22,7 +22,7 @@
         </form>
 
         <!-- Join Room Form -->
-        <form id="joinRoomForm" action="/" method="post">
+        <form id="joinRoomForm" action="index2.html" >
             <center><h2>Join a Room</h2></center>
             <label for="username2"><center><h3>Username:</h3></center></label>
             <input type="text" id="username2" name="username" placeholder="Enter your username" required>
@@ -41,6 +41,8 @@
     <!-- <script>
     const socket = io();
     </script> -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qs/6.11.2/qs.min.js" integrity="sha512-vCegEXqPUYpZsTGz2lk0jaQ1psxtFeniVJACAXhMVxuoYa/N4nZkjoVFOxLwP7uGeQOoemiz7DQrIpRTj4IBPw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
     <script src="https://cdn.socket.io/4.0.1/socket.io.min.js"></script>
     <script>
         // const port = 8000;

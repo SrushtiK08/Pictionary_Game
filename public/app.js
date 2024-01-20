@@ -1,64 +1,77 @@
 const port = 3000;
-// const { Server } = require('socket.io');
-// import {io} from 'socket.io-client';
-// const {io} = require('socket.io-client')
-
 const msgform = document.getElementById('msg-form');
 const chtMessages = document.querySelector('.msgBox');
-
 const socket = io();
 
-//getting username and room  from URL 
-// const {username,room} = Qs.parse(location.search);
-
-//Message from Server
-socket.on('message',message=>{
-    console.log(message);
-    // console.log('I ma here')
-    //function for outing the message in the msg box
-    outputMessage(message);
-    
-
-    //automated scrolling of the messgae tab
-    chtMessages.scrollTop = chtMessages.scrollHeight;
+// Getting username and room from URL
+var { username, roomID } = Qs.parse(location.search, {
+  ignoreQueryPrefix: true
 });
 
-socket.on('user-connected', ({ username, roomID }) => {
-    // Do something with the username and roomID, for example, store them in a variable
-    console.log(`Connected: ${username} in room ${roomID}`);
-    console.log('I ma here')
-    // Now you can use the username and roomID as needed in your client-side code
+console.log(username,roomID);
+
+// Join the room or create a new one
+if (roomID === undefined) {
+  // If no room is provided, generate a random room code
+  roomID = generateRoomCode();
+  console.log(username, roomID);
+//   socket.emit('joinRoom',{username,roomID});
+
+} else {
+  console.log(username, roomID); 
+}
+socket.emit('joinRoom', { username,roomID });
+
+
+//getting room and users
+socket.on('roomUsers', ({roomID,user})=>{
+    outputRoomName(roomID);
+    outputUser(user);
+})
+
+// Message from Server
+socket.on('message', (message) => {
+  console.log(message);
+  // Function for outing the message in the message box
+  outputMessage(message);
+
+  // Automated scrolling of the message tab
+  chtMessages.scrollTop = chtMessages.scrollHeight;
 });
 
+// Message when submitted
+msgform.addEventListener('submit', (e) => {
+  e.preventDefault();
 
-//Message when submitted
-msgform.addEventListener('submit',(e)=>{
-    e.preventDefault();
+  // Fetching the message here
+  const msg = e.target.elements.messageInput.value;
 
-    //Fetching the message here
-    const msg = e.target.elements.messageInput.value;
+  // Emitting my message to the server
+  socket.emit('chatMessage', msg);
 
-    //Emitting my message to the server
-    socket.emit('chatMessage',msg);
-
-
-    //clearing out the input box
-    e.target.elements.messageInput.value = "";
-    e.target.elements.messageInput.focus();
+  // Clearing out the input box
+  e.target.elements.messageInput.value = '';
+  e.target.elements.messageInput.focus();
 });
 
-
-//Output Message to Box
-function outputMessage(message){
-    const div = document.createElement('div');
-    div.classList.add('msgInputs');
-    div.innerHTML = `<p class="meta"> ${message.username} <span>${message.time}</span> </p>
+// Output Message to Box
+function outputMessage(message) {
+  const div = document.createElement('div');
+  div.classList.add('msgInputs');
+  div.innerHTML = `<p class="meta"> ${message.username} <span>${message.time}</span> </p>
     <p class="text"> ${message.text}</p>`;
 
-    document.querySelector('.msgBox').appendChild(div);
+  document.querySelector('.msgBox').appendChild(div);
+}
+
+function generateRoomCode() {
+  var ans = Math.random().toString(36).substring(2, 8).toUpperCase();
+  console.log(ans);
+  return ans;
 }
 
 
-  
-
-
+//Add room name to Dom
+function outputRoomName(room){
+    
+}
