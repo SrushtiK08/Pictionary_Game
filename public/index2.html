@@ -43,23 +43,26 @@
   </div>
 
   <div id="rightPart">
-    <div id="msgBox">
-      <div id="msgs">
+    <div class="msgBox">
+      <div class="msgs">
         <!-- Display chat messages here -->
       </div>
-      <div id="msgInputs">
-        <input type="text" id="messageInput" placeholder="Type your message...">
-        <button id="sendMsgBtn">Send</button>
-      </div>
     </div>
+      <div class="msgInputs">
+        <form id="msg-form">
+          <input type="text" id="messageInput" required autocomplete="off"placeholder="Type your message...">
+        <button id="sendMsgBtn">Send</button>
+        </form>
+      </div>
   </div>
 
   <!-- <script src="app.js"></script> -->
   <script src="/socket.io/socket.io.js"></script>
-  <script>
+  <!-- <script>
     const socket = io();
-  </script>
+  </script> -->
   <script src="app.js"></script>
+  <script src="app2.js"></script>
  
 
 </body>

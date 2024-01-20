@@ -2,43 +2,55 @@ const path = require("path");
 const http = require("http");
 const express = require("express");
 // const socketio = require("socket.io");
-const { Server } = require('socket.io');
-const cors = require('cors')
+// const { Server } = require('socket.io');
+// const cors = require('cors')
 const { connect } = require('http2');
 const bodyParser = require("body-parser");
+const socketio = require('socket.io')
 
 
 const app = express();
-app.use(cors());
+// app.use(cors());
 const server = http.createServer(app);
 // const io = socketio(server);
-const io = new Server(server, {
-  cors: {
-    origin: 'http://localhost:3000',
-    methods:['GET', 'POST']
-  }
-});
-const port = 8000
+// const io = new Server(server, {
+//   cors: {
+//     origin: 'http://localhost:3000',
+//     methods:['GET', 'POST']
+//   }
+// });
+const io = socketio(server);
 
-app.listen(port, () => {
+
+const port = 3000
+
+server.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
 
-io.on('connection',(socket) =>{
-console.log('New WS Connected');
+io.on('connection', (socket) => {
+  // console.log('a user connected');
+  
+  //welcome current
+  socket.emit('message','Welcome to the game');
 
-// socket.on('connection',() => {
-//   console.log(`User connected ${socket.id}`)
-// })
+  //Broadcasting for not to send
+  socket.broadcast.emit('message','A user has joined the chat');
 
+  socket.on('disconnect', () => {
+    io.emit('message','A user has left the chat');
+  });
 
-
+  //Listening from the chatmessage
+  socket.on('chatMessage',msg=>{
+    io.emit('message',msg);
+  })
 });
 
 
 app.use(express.static('public'));
 app.use(bodyParser.urlencoded({ extended: true }));
-// app.use(express.json());
+app.use(express.json());
 
 // Room data storage
 var rooms = {};
@@ -52,18 +64,14 @@ app.post('/', (req, res) => {
   
   if(req.body.roomID){
     const { username, roomID } = req.body;
-    console.log(username, roomID);
-    console.log(rooms[roomID]);
     // Check if the room exists
     if (rooms[roomID]) {
         // Add the user to the room
         rooms[roomID].users.push(username);
 
-        // Redirect to the second page with the room code in query parameters
-        // res.redirect(`/index2?roomCode=${roomID}&username=${username}`);
+        // Redirect to the second page with the room code
         res.sendFile(path.join(__dirname, 'public', 'index2.html'));
     } else {
-        // Room not found, handle accordingly (you might want to display an error)
         res.send('Room not found');
     }
   }
@@ -87,24 +95,6 @@ app.post('/', (req, res) => {
 
 
 });
-
-// app.post('/', (req, res) => {
-//     const { username, roomID } = req.body;
-//     console.log(username, roomID);
-//     console.log(rooms[roomID]);
-//     // Check if the room exists
-//     if (rooms[roomID]) {
-//         // Add the user to the room
-//         rooms[roomID].users.push(username);
-
-//         // Redirect to the second page with the room code in query parameters
-//         // res.redirect(`/index2?roomCode=${roomID}&username=${username}`);
-//         res.sendFile(path.join(__dirname, 'public', 'index2.html'));
-//     } else {
-//         // Room not found, handle accordingly (you might want to display an error)
-//         res.send('Room not found');
-//     }
-// });
 
 
 function generateRoomCode() {
