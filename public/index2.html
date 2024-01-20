@@ -12,7 +12,10 @@
     <div id="userList">
       <h2>Users Joined</h2>
       <!-- Display the list of users joined -->
-      <ul id="joinedUsersList"></ul>
+      <ul id="joinedUsersList">
+
+        <!-- Here the users will be added -->
+      </ul>
     </div>
     <div id="roomControls">
       <button id="startGameBtn">Start Game</button>
@@ -51,6 +54,13 @@
     </div>
   </div>
 
-  <script src="app2.js"></script>
+  <!-- <script src="app.js"></script> -->
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io();
+  </script>
+  <script src="app.js"></script>
+ 
+
 </body>
 </html>

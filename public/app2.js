@@ -1,4 +1,3 @@
-// script.js
 document.addEventListener('DOMContentLoaded', () => {
     const canvas = document.getElementById('drawingCanvas');
     const context = canvas.getContext('2d');
@@ -54,10 +53,10 @@ document.addEventListener('DOMContentLoaded', () => {
       brushColor = '#f2f2f2'; // Set the color to match the background (white) for erasing
       clearCanvas();
     });
-
+  
     // Function to clear the canvas
     function clearCanvas() {
         context.clearRect(0, 0, canvas.width, canvas.height);
         context.beginPath();
     }
-});
+  });
