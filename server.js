@@ -25,16 +25,21 @@ io.on('connection', (socket) => {
     const user = userJoin(socket.id,username,roomID);
     socket.join(user.roomID);
     // Welcome current user
+    // console.log(roomID,username);
+    // console.log(user.roomID,getRoomUsers(user.roomID));
   socket.emit('message', formatMessage(botName, 'Welcome to the game'));
 
   // Broadcasting for others not to send
   socket.broadcast.to(user.roomID).emit('message', formatMessage(botName, `${user.username} has joined the room`));
 
   //send users and rooms info
+  if(user){
+    console.log(user.roomID,getRoomUsers(user.roomID));
   io.to(user.roomID).emit('roomUsers',{
     room: user.roomID,
     users: getRoomUsers(user.roomID)
   });
+  }
 
   });
 
@@ -52,19 +57,21 @@ io.on('connection', (socket) => {
 
   socket.on('disconnect', () => {
     const user = userLeaves(socket.id);
+    // console.log('showing on disconnecting')
 
     if(user){
       io.to(user.roomID).emit('message', formatMessage(botName, `${user.username} has left the chat` ));
     }
 
     //send users and rooms info
-  io.to(user.roomID).emit('roomUsers',{
-    room: user.roomID,
-    users: getRoomUsers(user.roomID)
-  });
-
-
-    
+    // console.log('hi')
+    if(user){
+      console.log(user.roomID,getRoomUsers(user.roomID));
+      io.to(user.roomID).emit('roomUsers',{
+        room: user.roomID,
+        users: getRoomUsers(user.roomID)
+      });
+    }   
   });
   
 });

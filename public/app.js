@@ -1,7 +1,10 @@
 const port = 3000;
 const msgform = document.getElementById('msg-form');
 const chtMessages = document.querySelector('.msgBox');
+const roomName = document.querySelector('.roomCode');
+const userList = document.getElementById('joinedUsersList');
 const socket = io();
+
 
 // Getting username and room from URL
 var { username, roomID } = Qs.parse(location.search, {
@@ -24,9 +27,10 @@ socket.emit('joinRoom', { username,roomID });
 
 
 //getting room and users
-socket.on('roomUsers', ({roomID,user})=>{
-    outputRoomName(roomID);
-    outputUser(user);
+socket.on('roomUsers', ({room,users})=>{
+    console.log(room,users);
+    outputRoomName(room);
+    outputUser(users);
 })
 
 // Message from Server
@@ -56,12 +60,25 @@ msgform.addEventListener('submit', (e) => {
 
 // Output Message to Box
 function outputMessage(message) {
-  const div = document.createElement('div');
-  div.classList.add('msgInputs');
-  div.innerHTML = `<p class="meta"> ${message.username} <span>${message.time}</span> </p>
-    <p class="text"> ${message.text}</p>`;
 
+    const div = document.createElement('div');
+  div.classList.add('msgs');
+  const p = document.createElement('p');
+  p.classList.add('meta');
+  p.innerText = message.username;
+//   p.innerHTML += `<span>${message.time}</span>`;
+  div.appendChild(p);
+  const para = document.createElement('p');
+  para.classList.add('text');
+  para.innerText = message.text;
+  div.appendChild(para);
   document.querySelector('.msgBox').appendChild(div);
+//   const div = document.createElement('div');
+//   div.classList.add('msgInputs');
+//   div.innerHTML = `<p class="meta"> ${message.username} <span>${message.time}</span> </p>
+//     <p class="text"> ${message.text}</p>`;
+
+//   document.querySelector('.msgBox').appendChild(div);
 }
 
 function generateRoomCode() {
@@ -72,6 +89,32 @@ function generateRoomCode() {
 
 
 //Add room name to Dom
-function outputRoomName(room){
-    
+function outputRoomName(roomID){
+    // roomName.innerText = roomID;
+    const div = document.createElement('div');
+    div.classList.add('roomCode');
+    div.innerHTML = `<h3>Your Room Code:</h3>
+    <p class="roomCodeValue">${roomID}</p>`;
+  
+    document.querySelector('.roomCode').innerHTML = div.innerHTML;
+}
+
+
+//Add users to DOM
+function outputUser(users){
+    userList.innerHTML = '';
+    users.forEach((user) => {
+        const li = document.createElement('li');
+
+        // Create a new <i> element with a Font Awesome icon
+        const iconElement = document.createElement('i');
+        iconElement.classList.add('fas', 'fa-check'); 
+        li.appendChild(iconElement);
+
+        // Set the username as text content of the <li>
+        li.appendChild(document.createTextNode(` ${user.username}`));
+
+        // Append the <li> to the user list
+        userList.appendChild(li);
+      });
 }

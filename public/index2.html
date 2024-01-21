@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Drawing Room</title>
   <link rel="stylesheet" href="style2.css">
+  <!-- <link rel="stylesheet" href="path/to/font-awesome/css/font-awesome.min.css"> -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-PnJ1Br4An6nQ5CZNiU4G56W2wNTOPMHb8hmRqC1WKbDTQd6aCDQTFC1I3++O6r5FDwhWzZIaOeTfbWnyEDETOw==" crossorigin="anonymous" />
+
 </head>
 <body>
 
@@ -13,17 +16,14 @@
       <h2 id="room-head">Users Joined</h2>
       <!-- Display the list of users joined -->
       <ul id="joinedUsersList">
-
-        <!-- Here the users will be added -->
       </ul>
     </div>
     <div id="roomControls">
       <button id="startGameBtn">Start Game</button>
       <button id="leaveRoomBtn" onclick="window.location.href='index.html';">Leave Room</button>
     </div>
-    <div id="roomCode">
-      <h3>Your Room Code:</h3>
-      <p id="roomCodeValue">ABC123</p>
+    <div class="roomCode">
+      <!-- Room Name to be displayed -->
     </div>
   </div>
 
@@ -43,10 +43,12 @@
   </div>
 
   <div id="rightPart">
+    <h2 id="room-head">Room Messages</h2>
     <div class="msgBox">
-      <div class="msgs">
-        <!-- Display chat messages here -->
-      </div>
+
+      <!-- <div class="msgs">
+         Display chat messages here 
+      </div> -->
     </div>
       <div class="msgInputs">
         <form id="msg-form">

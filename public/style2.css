@@ -1,23 +1,38 @@
 /* styles.css */
-
+@import url('https://fonts.googleapis.com/css?family=Roboto&display=swap');
 :root {
-	--dark-color-a: #63b90e;
-	--dark-color-b: #0a6a08;
-	--light-color: #adda7b;
-	--success-color: #95eab9;
+	--dark-color-a: #345c0c;
+	--dark-color-b: #054603;
+	--light-color: #d1edb4;
+	--success-color: #06530c;
 	--error-color: #d9534f;
 }
+*{
+  box-sizing: border-box;
 
+}
 body {
+  font-family: 'Roboto',sans-serif;
     margin: 0;
     padding: 0;
     display: flex;
     height: 100vh;
+    background-color: var(--light-color);
   }
+
+  ul {
+    list-style: none;
+  }
+
+  a {
+    text-decoration: none;
+  }
+
+
   h1 {
     background: #45702c;
-    background: -webkit-linear-gradient(to right, #063d06, #86e7a6, #075311);
-    background: linear-gradient(to right,#063d06, #86e7a6, #075311);
+    background: -webkit-linear-gradient(to right, #063d06, #1b9845, #075311);
+    background: linear-gradient(to right, #063d06, #1b9845, #075311);
     background-clip: text;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -25,19 +40,27 @@ body {
 
 h2 {
     background: #45702c;
-    background: -webkit-linear-gradient(to right, #063d06, #86e7a6, #075311);
-    background: linear-gradient(to right,#063d06, #86e7a6, #075311);
+    background: -webkit-linear-gradient(to right,  #063d06, #1b9845, #075311);
+    background: linear-gradient(to right, #063d06, #1b9845, #075311);
     background-clip: text;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
 }
+
+#rightPart {
+	max-width: 1100px;
+	background: var(--light-color);
+	margin: 30px auto;
+	overflow: hidden;
+}
+
 
 
   #leftPart, #middlePart, #rightPart {
     width: 20%;
     padding: 20px;
     box-sizing: border-box;
-    background-color: #f2f2f2;
+    background-color: var(--light-color);
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
   }
   
@@ -108,16 +131,18 @@ h2 {
   
   .msgBox {
     flex-grow: 1;
+    padding: 1px;
     display: flex;
     flex-direction: column;
     overflow-y: auto;
   }
 
   .msgBox .msgs{
-    padding: 10px;
-	margin-bottom: 15px;
+    font-size: 18px;
+    padding: 1px;
+	margin-bottom: 3px;
 	background-color: var(--light-color);
-	border-radius: 5px;
+	border-radius: 2px;
 	overflow-wrap: break-word;
   }
 
@@ -126,7 +151,7 @@ h2 {
 	font-weight: bold;
 	color: var(--dark-color-b);
 	opacity: 0.7;
-	margin-bottom: 7px;
+	margin-bottom:2px;
   }
   
   /* .msgs {
@@ -135,11 +160,24 @@ h2 {
     /* background-color: #f9f9f9; */
     /* border-radius: 8px; */
   /* }  */
+
+  .msgBox .msgs .meta span {
+    color: #912626;
+  }
   
   .msgInputs {
+    padding: 2px 4px;
+    background-color: var(--dark-color-a);
+  }
+  
+  .msgInputs form {
     display: flex;
-    flex-direction: column;
-    gap: 1px;
-    margin-top: 2px;
+  }
+  
+  .msgInputs input[type='text'] {
+    font-size: 11px;
+    padding: 6px;
+    /* height: 10px; */
+    flex: 2;
   }
   

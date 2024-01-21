@@ -4,7 +4,7 @@ var users = [];
 //Join user to chat
 
 function userJoin(id,username,roomID){
-    const user = {id,username,roomID};
+    var user = {id,username,roomID};
 
     users.push(user);
 
@@ -17,7 +17,7 @@ function getCurrentUser(id){
 
 //User leaves the chat box
 function  userLeaves(id){
-    const index = users.findIndex(user=> user.id==id)
+    var index = users.findIndex(user=> user.id===id)
 
     if(index!=-1){
         return users.splice(index,1)[0];
