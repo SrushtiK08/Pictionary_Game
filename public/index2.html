@@ -6,7 +6,7 @@
   <title>Drawing Room</title>
   <link rel="stylesheet" href="style2.css">
   <!-- <link rel="stylesheet" href="path/to/font-awesome/css/font-awesome.min.css"> -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-PnJ1Br4An6nQ5CZNiU4G56W2wNTOPMHb8hmRqC1WKbDTQd6aCDQTFC1I3++O6r5FDwhWzZIaOeTfbWnyEDETOw==" crossorigin="anonymous" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
 </head>
 <body>
@@ -33,6 +33,13 @@
       <h2>Word to Guess: <span id="wordToGuess">Example</span></h2>
     </header>
     <canvas id="drawingCanvas" width="600" height="400"></canvas>
+    <!-- <video
+      style="position: fixed; bottom: 0; left: 0"
+      id="test"
+      width="600"
+      height="600"
+      autoplay
+    ></video> -->
     <div id="drawTools">
       <label for="brushColor">Brush Color:</label>
       <input type="color" id="brushColor" value="#000000">
@@ -65,7 +72,7 @@
     const socket = io();
   </script> -->
   <script src="app.js"></script>
-  <script src="app2.js"></script>
+  <!-- <script src="app2.js"></script> -->
  
 
 </body>

@@ -43,6 +43,11 @@ socket.on('message', (message) => {
   chtMessages.scrollTop = chtMessages.scrollHeight;
 });
 
+
+  socket.on('redirect', (url) => {
+    window.location.href = url;
+  });
+
 // Message when submitted
 msgform.addEventListener('submit', (e) => {
   e.preventDefault();
@@ -107,9 +112,9 @@ function outputUser(users){
         const li = document.createElement('li');
 
         // Create a new <i> element with a Font Awesome icon
-        const iconElement = document.createElement('i');
-        iconElement.classList.add('fas', 'fa-check'); 
-        li.appendChild(iconElement);
+        // const iconElement = document.createElement('i');
+        // iconElement.classList.add('fas', 'fa fa-user-circle-o'); 
+        // li.appendChild(iconElement);
 
         // Set the username as text content of the <li>
         li.appendChild(document.createTextNode(` ${user.username}`));
@@ -118,3 +123,61 @@ function outputUser(users){
         userList.appendChild(li);
       });
 }
+
+
+
+
+//CANVAS PART
+
+const canvas = document.getElementById("drawingCanvas");
+// let test = document.getElementById("test");
+
+const ctx = canvas.getContext("2d");
+
+let x;
+let y;
+
+let mousedown = false;
+
+window.onmousedown = (e) =>{
+  let left = e.clientX 
+  let right = e.clientY
+  socket.emit('down', {left,right});
+    ctx.moveTo(e.clientX - canvas.offsetLeft, e.clientY - canvas.offsetTop);
+  mousedown = true;
+
+};
+
+socket.on('onDown',({x,y})=>{
+  console.log("idhar aya me")
+  ctx.moveTo(x - canvas.offsetLeft, y - canvas.offsetTop);
+})
+
+window.onmouseup = (e) =>{
+  mousedown = false;
+}
+
+socket.on('onDraw',({x,y})=>{
+  ctx.lineWidth = brushSize;
+    ctx.lineCap = 'round';
+    ctx.strokeStyle = brushColor;
+    ctx.lineTo(x - canvas.offsetLeft, y - canvas.offsetTop);
+    ctx.stroke();
+})
+
+window.onmousemove = (e) =>{
+  x = e.clientX;
+  y = e.clientY;
+
+    if(mousedown){
+      socket.emit('draw',{x,y});
+    ctx.lineWidth = brushSize;
+    ctx.lineCap = 'round';
+    ctx.strokeStyle = brushColor;
+    ctx.lineTo(e.clientX - canvas.offsetLeft, e.clientY - canvas.offsetTop);
+    ctx.stroke();
+    // ctx.beginPath();
+    
+    }
+};
+  

@@ -12,16 +12,23 @@ const io = socketio(server);
 
 const port = 3000;
 
+let connections = []
+
 server.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
 
 // Room data storage
 var rooms = {};
-
+var entered = {};
 io.on('connection', (socket) => {
-
+  connections.push(socket);
   socket.on('joinRoom', ({username,roomID})=>{
+    if(entered[username]){
+      socket.emit('redirect','http://localhost:3000');
+      entered[username] = false;
+    }
+    entered[username] = true;
     const user = userJoin(socket.id,username,roomID);
     socket.join(user.roomID);
     // Welcome current user
@@ -45,9 +52,19 @@ io.on('connection', (socket) => {
 
   console.log('a user connected');
 
-  
-
+  //Drawing 
+  socket.on('draw', (data) => {
+    socket.broadcast.emit('onDraw',{x: data.x,y: data.y});
+  });
  
+   //Disconnecting Moves
+   socket.on('down',(data)=>{
+    connections.forEach(con =>{
+      if(con.id!=socket.id){
+        con.emit('onDown',{x: data.x,y: data.y});
+      }
+    });
+   });
 
   // Listening for chat messages
   socket.on('chatMessage', (msg) => {
@@ -59,21 +76,31 @@ io.on('connection', (socket) => {
     const user = userLeaves(socket.id);
     // console.log('showing on disconnecting')
 
+    
+
     if(user){
       io.to(user.roomID).emit('message', formatMessage(botName, `${user.username} has left the chat` ));
     }
 
     //send users and rooms info
     // console.log('hi')
+   
+
     if(user){
       console.log(user.roomID,getRoomUsers(user.roomID));
       io.to(user.roomID).emit('roomUsers',{
         room: user.roomID,
         users: getRoomUsers(user.roomID)
       });
-    }   
+
+      // io.to(socket.id).emit('redirect', '/');
+      
+    }
+    // console.log('Redirecting user to http://localhost:3000/');
+    
+    
   });
-  
+
 });
 
 app.use(express.static('public'));
