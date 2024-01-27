@@ -6,6 +6,10 @@ const userList = document.getElementById('joinedUsersList');
 const socket = io();
 
 
+let brushColor = '#000000';
+let brushSize = 5;
+
+
 // Getting username and room from URL
 var { username, roomID } = Qs.parse(location.search, {
   ignoreQueryPrefix: true
@@ -142,14 +146,20 @@ let mousedown = false;
 window.onmousedown = (e) =>{
   let left = e.clientX 
   let right = e.clientY
-  socket.emit('down', {left,right});
-    ctx.moveTo(e.clientX - canvas.offsetLeft, e.clientY - canvas.offsetTop);
+  ctx.lineWidth = brushSize;
+  ctx.lineCap = 'round';
+  ctx.strokeStyle = brushColor;
+  ctx.moveTo(x - canvas.offsetLeft, y- canvas.offsetTop);
+  socket.emit('down', {x,y});
   mousedown = true;
 
 };
 
 socket.on('onDown',({x,y})=>{
   console.log("idhar aya me")
+  ctx.lineWidth = brushSize;
+  ctx.lineCap = 'round';
+  ctx.strokeStyle = brushColor;
   ctx.moveTo(x - canvas.offsetLeft, y - canvas.offsetTop);
 })
 
@@ -181,3 +191,73 @@ window.onmousemove = (e) =>{
     }
 };
   
+
+function clearCanvas() {
+  context.clearRect(0, 0, canvas.width, canvas.height);
+  mousedown = false;
+brushColor = defaultBrushColor;
+context.beginPath();
+}
+
+
+const brushColorInput = document.getElementById('brushColor');
+    brushColorInput.addEventListener('input', () => {
+      brushColor = brushColorInput.value;
+    });
+  
+    // Brush size input
+    const brushSizeInput = document.getElementById('brushSize');
+    brushSizeInput.addEventListener('input', () => {
+      brushSize = brushSizeInput.value;
+    });
+  
+    // Eraser button
+    const eraserBtn = document.getElementById('eraserBtn');
+    eraserBtn.addEventListener('click', () => {
+      // brushColor = '#f2f2f2'; // Set the color to match the background (white) for erasing
+      clearCanvas();
+    });
+
+
+    // Add the following code to send brush color and size changes to the server
+
+// Update brush color
+brushColorInput.addEventListener('input', () => {
+  brushColor = brushColorInput.value;
+  socket.emit('brushColorChanged', brushColor);
+});
+
+// Update brush size
+brushSizeInput.addEventListener('input', () => {
+  brushSize = brushSizeInput.value;
+  socket.emit('brushSizeChanged', brushSize);
+});
+
+// Broadcast brush color and size changes to other clients
+socket.on('brushColorChanged', (color) => {
+  brushColor = color;
+});
+
+socket.on('brushSizeChanged', (size) => {
+  brushSize = size;
+});
+
+// Add the following code to broadcast canvas clearing to other clients
+
+// Eraser button
+eraserBtn.addEventListener('click', () => {
+  clearCanvas();
+  socket.emit('clearCanvas');
+});
+
+// Broadcast canvas clearing to other clients
+socket.on('clearCanvas', () => {
+  clearCanvas();
+});
+
+// Update the clearCanvas function
+function clearCanvas() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  mousedown = false;
+  ctx.beginPath();
+}
