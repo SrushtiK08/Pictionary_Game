@@ -15,12 +15,13 @@ var { username, roomID } = Qs.parse(location.search, {
   ignoreQueryPrefix: true
 });
 
-console.log(username,roomID);
-
+console.log('here',username,roomID);
+var rrr;
 // Join the room or create a new one
 if (roomID === undefined) {
   // If no room is provided, generate a random room code
   roomID = generateRoomCode();
+  rrr = roomID;
   console.log(username, roomID);
 //   socket.emit('joinRoom',{username,roomID});
 
@@ -82,12 +83,6 @@ function outputMessage(message) {
   para.innerText = message.text;
   div.appendChild(para);
   document.querySelector('.msgBox').appendChild(div);
-//   const div = document.createElement('div');
-//   div.classList.add('msgInputs');
-//   div.innerHTML = `<p class="meta"> ${message.username} <span>${message.time}</span> </p>
-//     <p class="text"> ${message.text}</p>`;
-
-//   document.querySelector('.msgBox').appendChild(div);
 }
 
 function generateRoomCode() {
@@ -150,9 +145,8 @@ window.onmousedown = (e) =>{
   ctx.lineCap = 'round';
   ctx.strokeStyle = brushColor;
   ctx.moveTo(x - canvas.offsetLeft, y- canvas.offsetTop);
-  socket.emit('down', {x,y});
+  socket.emit('down', { x, y, color: brushColor });
   mousedown = true;
-
 };
 
 socket.on('onDown',({x,y})=>{
@@ -167,10 +161,10 @@ window.onmouseup = (e) =>{
   mousedown = false;
 }
 
-socket.on('onDraw',({x,y})=>{
+socket.on('onDraw',({x,y,color})=>{
   ctx.lineWidth = brushSize;
     ctx.lineCap = 'round';
-    ctx.strokeStyle = brushColor;
+    ctx.strokeStyle = color;
     ctx.lineTo(x - canvas.offsetLeft, y - canvas.offsetTop);
     ctx.stroke();
 })
@@ -178,32 +172,38 @@ socket.on('onDraw',({x,y})=>{
 window.onmousemove = (e) =>{
   x = e.clientX;
   y = e.clientY;
+  console.log('rrr ki :',rrr);
 
     if(mousedown){
-      socket.emit('draw',{x,y});
+      const color = brushColor;
+      socket.emit('draw',{x,y,color});
     ctx.lineWidth = brushSize;
     ctx.lineCap = 'round';
-    ctx.strokeStyle = brushColor;
+    ctx.strokeStyle = color;
     ctx.lineTo(e.clientX - canvas.offsetLeft, e.clientY - canvas.offsetTop);
     ctx.stroke();
-    // ctx.beginPath();
-    
     }
 };
   
 
 function clearCanvas() {
-  context.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
   mousedown = false;
-brushColor = defaultBrushColor;
-context.beginPath();
+  brushColor = defaultBrushColor;
+  ctx.beginPath();
 }
 
 
 const brushColorInput = document.getElementById('brushColor');
     brushColorInput.addEventListener('input', () => {
       brushColor = brushColorInput.value;
+      socket.emit('brushColorChanged', brushColor);
     });
+
+    // Receive brush color change from other clients
+socket.on('brushColorChanged', (color) => {
+  brushColor = color;
+});
   
     // Brush size input
     const brushSizeInput = document.getElementById('brushSize');
@@ -214,23 +214,19 @@ const brushColorInput = document.getElementById('brushColor');
     // Eraser button
     const eraserBtn = document.getElementById('eraserBtn');
     eraserBtn.addEventListener('click', () => {
-      // brushColor = '#f2f2f2'; // Set the color to match the background (white) for erasing
       clearCanvas();
     });
-
-
-    // Add the following code to send brush color and size changes to the server
 
 // Update brush color
 brushColorInput.addEventListener('input', () => {
   brushColor = brushColorInput.value;
-  socket.emit('brushColorChanged', brushColor);
+  socket.broadcast.emit('brushColorChanged', brushColor);
 });
 
 // Update brush size
 brushSizeInput.addEventListener('input', () => {
   brushSize = brushSizeInput.value;
-  socket.emit('brushSizeChanged', brushSize);
+  socket.broadcast.emit('brushSizeChanged', brushSize);
 });
 
 // Broadcast brush color and size changes to other clients

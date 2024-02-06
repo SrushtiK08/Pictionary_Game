@@ -5,10 +5,11 @@ const socketio = require('socket.io');
 const formatMessage = require('./helpers/msgs');
 const {userJoin , getCurrentUser , userLeaves , getRoomUsers} = require('./helpers/users');
 const botName = 'Game Bot';
-
+var uss;
 const app = express();
 const server = http.createServer(app);
 const io = socketio(server);
+let currentColor = '#000000'; 
 
 const port = 3000;
 
@@ -30,11 +31,10 @@ io.on('connection', (socket) => {
     }
     entered[username] = true;
     const user = userJoin(socket.id,username,roomID);
+    uss = user;
+    console.log('uss : ',uss);
     socket.join(user.roomID);
-    // Welcome current user
-    // console.log(roomID,username);
-    // console.log(user.roomID,getRoomUsers(user.roomID));
-  socket.emit('message', formatMessage(botName, 'Welcome to the game'));
+    socket.emit('message', formatMessage(botName, 'Welcome to the game'));
 
   // Broadcasting for others not to send
   socket.broadcast.to(user.roomID).emit('message', formatMessage(botName, `${user.username} has joined the room`));
@@ -42,6 +42,7 @@ io.on('connection', (socket) => {
   //send users and rooms info
   if(user){
     console.log(user.roomID,getRoomUsers(user.roomID));
+
   io.to(user.roomID).emit('roomUsers',{
     room: user.roomID,
     users: getRoomUsers(user.roomID)
@@ -54,16 +55,21 @@ io.on('connection', (socket) => {
 
   //Drawing 
   socket.on('draw', (data) => {
-    socket.broadcast.emit('onDraw',{x: data.x,y: data.y});
+    // const user = userJoin(socket.id,username,roomID);
+    const user = getCurrentUser(socket.id);
+    if (user) {
+      // console.log(data.color);
+      currentColor = data.color || currentColor;
+      io.to(user.roomID).emit('onDraw', { x: data.x, y: data.y ,color: data.color });
+    }
   });
  
    //Disconnecting Moves
    socket.on('down',(data)=>{
-    connections.forEach(con =>{
-      if(con.id!=socket.id){
-        con.emit('onDown',{x: data.x,y: data.y});
-      }
-    });
+    const user = getCurrentUser(socket.id);
+    if (user) {
+      io.to(user.roomID).emit('onDown', { x: data.x, y: data.y, color : data.color });
+    }
    });
 
   // Listening for chat messages
@@ -75,9 +81,6 @@ io.on('connection', (socket) => {
   socket.on('disconnect', () => {
     const user = userLeaves(socket.id);
     // console.log('showing on disconnecting')
-
-    
-
     if(user){
       io.to(user.roomID).emit('message', formatMessage(botName, `${user.username} has left the chat` ));
     }
@@ -92,13 +95,8 @@ io.on('connection', (socket) => {
         room: user.roomID,
         users: getRoomUsers(user.roomID)
       });
-
-      // io.to(socket.id).emit('redirect', '/');
       
-    }
-    // console.log('Redirecting user to http://localhost:3000/');
-    
-    
+    }  
   });
 
 });
