@@ -5,7 +5,10 @@ const socketio = require('socket.io');
 const formatMessage = require('./helpers/msgs');
 const {userJoin , getCurrentUser , userLeaves , getRoomUsers} = require('./helpers/users');
 const botName = 'Game Bot';
-var uss;
+const randomWordSlugs = require('random-word-slugs');
+// const randomWord = new RandomWordSlugs();
+
+// import { generateSlug } from "random-word-slugs";
 const app = express();
 const server = http.createServer(app);
 const io = socketio(server);
@@ -13,7 +16,28 @@ let currentColor = '#000000';
 
 const port = 3000;
 
+
 let connections = []
+
+// Random word generator
+// const randomWord = new RandomWordSlugs();
+
+
+// Categories for random words
+const categories = ['noun', 'animals', 'food'];
+
+// Random word options
+const options = {
+  category: categories[Math.floor(Math.random() * categories.length)]
+};
+
+
+//IMPLEMENTING THE ROUND PART
+
+let currentRound = 0;
+const totalRounds = 3;
+
+
 
 server.listen(port, () => {
   console.log(`Server is running on port ${port}`);
@@ -31,8 +55,11 @@ io.on('connection', (socket) => {
     }
     entered[username] = true;
     const user = userJoin(socket.id,username,roomID);
-    uss = user;
-    console.log('uss : ',uss);
+
+    const isHost = getRoomUsers(user.roomID).length === 1;
+
+    socket.emit('hostStatus', isHost);
+
     socket.join(user.roomID);
     socket.emit('message', formatMessage(botName, 'Welcome to the game'));
 
@@ -99,6 +126,32 @@ io.on('connection', (socket) => {
     }  
   });
 
+  socket.on('startGame', () => {
+    // const user = getCurrentUser(socket.id);
+    startRound();
+  });
+
+  function startRound() {
+    const user = getCurrentUser(socket.id);
+    currentRound++;
+    if (currentRound <= totalRounds) {
+      
+      io.to(user.roomID).emit('startRound', currentRound);
+      const word = randomWordSlugs.generateSlug(1,{format : "title"});
+      
+        // Logic to send the randomly generated word to the drawing player
+        console.log(word);
+        io.to(socket.id).emit('wordToDraw', word);
+
+        // Logic to send the word length to all other players
+        const wordLength = word.length;
+        socket.broadcast.to(user.roomID).emit('wordLength', wordLength);
+    
+    } else {
+      // If all rounds are completed, emit a signal to end the game
+      io.to(user.roomID).emit('gameOver');
+    }
+  }
 });
 
 app.use(express.static('public'));

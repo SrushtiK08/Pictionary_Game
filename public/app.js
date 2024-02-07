@@ -3,6 +3,7 @@ const msgform = document.getElementById('msg-form');
 const chtMessages = document.querySelector('.msgBox');
 const roomName = document.querySelector('.roomCode');
 const userList = document.getElementById('joinedUsersList');
+const startGameBtn = document.getElementById('startGameBtn');
 const socket = io();
 
 
@@ -150,7 +151,7 @@ window.onmousedown = (e) =>{
 };
 
 socket.on('onDown',({x,y})=>{
-  console.log("idhar aya me")
+  
   ctx.lineWidth = brushSize;
   ctx.lineCap = 'round';
   ctx.strokeStyle = brushColor;
@@ -172,7 +173,7 @@ socket.on('onDraw',({x,y,color})=>{
 window.onmousemove = (e) =>{
   x = e.clientX;
   y = e.clientY;
-  console.log('rrr ki :',rrr);
+
 
     if(mousedown){
       const color = brushColor;
@@ -256,4 +257,81 @@ function clearCanvas() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   mousedown = false;
   ctx.beginPath();
+}
+
+
+
+//GAMING PARTS
+
+
+socket.on('hostStatus', (isHost) => {
+  const startButton = document.getElementById('startGameBtn');
+  if (isHost) {
+    startGameBtn.addEventListener('click', () => {
+      // Emit a message to start the game if the user is the host
+      console.log('game is starting');
+      socket.emit('startGame');
+    });
+    // startButton.removeAttribute('disabled');
+    
+  } else {
+   
+    startButton.addEventListener('click', ()=>{
+      alert("Only host can start the game!!");
+    })
+  }
+
+});
+
+
+
+//IMPLEMENTING ROUND PARTS
+
+// Add event listener for starting a new round
+socket.on('startRound', (roundNumber) => {
+  console.log(`Starting round ${roundNumber}`);
+  // Implement logic to start a new round, e.g., reset canvas, clear chat, etc.
+});
+
+// Event listener to receive the word to draw
+socket.on('wordToDraw', (word) => {
+  console.log(`Word to draw: ${word}`);
+  // Implement logic to display the word for the drawing player
+});
+
+// Event listener to receive the word length
+socket.on('wordLength', (length) => {
+  console.log(`Word length: ${length}`);
+  // Implement logic to display the word length for guessing players
+});
+
+// Event listener for game over
+socket.on('gameOver', () => {
+  console.log('Game over');
+  
+});
+
+
+socket.on('wordToDraw', (word) => {
+  console.log(`Word to draw: ${word}`);
+  displayWordToDraw(word);
+});
+
+
+socket.on('wordLength', (length) => {
+  console.log(`Word length: ${length}`);
+ 
+  displayWordLength(length);
+});
+
+function displayWordToDraw(word) {
+  const wordToGuess = document.getElementById('wordToGuess');
+  wordToGuess.innerText = `Word to Guess: ${word}`;
+}
+
+// Function to display the word length for guessing players
+function displayWordLength(length) {
+  const wordToGuess = document.getElementById('wordToGuess');
+  wordToGuess.innerText = `Word Length: ${length}`;
+
 }
