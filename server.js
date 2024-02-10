@@ -19,6 +19,7 @@ const port = 3000;
 
 let connections = []
 
+
 // Random word generator
 // const randomWord = new RandomWordSlugs();
 
@@ -37,6 +38,8 @@ const options = {
 let currentRound = 0;
 const totalRounds = 3;
 
+let roundGuesses = {}
+let crnt = 0
 
 
 server.listen(port, () => {
@@ -68,7 +71,7 @@ io.on('connection', (socket) => {
 
   //send users and rooms info
   if(user){
-    console.log(user.roomID,getRoomUsers(user.roomID));
+    // console.log(user.roomID,getRoomUsers(user.roomID));
 
   io.to(user.roomID).emit('roomUsers',{
     room: user.roomID,
@@ -102,8 +105,31 @@ io.on('connection', (socket) => {
   // Listening for chat messages
   socket.on('chatMessage', (msg) => {
     const user = getCurrentUser(socket.id);
-    io.to(user.roomID).emit('message', formatMessage(user.username, msg));
+    // var msg_display = false;
+    const crctMsg = formatMessage(botName,`${user.username} has guessed correctly.`);
+    const normalMsg = formatMessage(user.username,msg);
+    // console.log(crctMsg);
+    io.to(user.roomID).emit('message_checking',{msg,crctMsg,normalMsg,id : user.id});
+    // io.to(user.roomID).emit('message', formatMessage(user.username, msg));
   });
+
+  socket.on('increase_points',(id)=>{
+    
+    if(socket.id===id){
+    const user = getCurrentUser(id);
+    // console.log(`current user wala id dekhte hein : ${user}`);
+    console.log(`crnt : ${crnt}`);
+    let size = getRoomUsers(user.roomID).length;
+
+    console.log(`increase_point wala fxn : ${getRoomUsers(user.roomID).length}`);
+    const point = 10*(getRoomUsers(user.roomID).length - (crnt)%size);
+
+    user.points += point;
+    crnt++;
+
+    console.log(`${user.username} ke points : ${user.points}`);
+    }
+  })
 
   socket.on('disconnect', () => {
     const user = userLeaves(socket.id);
@@ -117,7 +143,7 @@ io.on('connection', (socket) => {
    
 
     if(user){
-      console.log(user.roomID,getRoomUsers(user.roomID));
+      // console.log(user.roomID,getRoomUsers(user.roomID));
       io.to(user.roomID).emit('roomUsers',{
         room: user.roomID,
         users: getRoomUsers(user.roomID)
@@ -127,32 +153,83 @@ io.on('connection', (socket) => {
   });
 
   socket.on('startGame', () => {
-    // const user = getCurrentUser(socket.id);
-    startRound();
-  });
-
-  function startRound() {
+    currentRound = 0;
     const user = getCurrentUser(socket.id);
-    currentRound++;
-    if (currentRound <= totalRounds) {
-      
-      io.to(user.roomID).emit('startRound', currentRound);
-      const word = randomWordSlugs.generateSlug(1,{format : "title"});
-      
-        // Logic to send the randomly generated word to the drawing player
-        console.log(word);
-        io.to(socket.id).emit('wordToDraw', word);
-
-        // Logic to send the word length to all other players
-        const wordLength = word.length;
-        socket.broadcast.to(user.roomID).emit('wordLength', wordLength);
-    
-    } else {
-      // If all rounds are completed, emit a signal to end the game
-      io.to(user.roomID).emit('gameOver');
-    }
-  }
+    // console.log(`startGame pe chal raha kya : ${user}`)
+    // console.log(user)
+    const user_list = getRoomUsers(user.roomID);
+    startRound(user_list);
 });
+
+function startRound(user_list) {
+   roundGuesses[currentRound] = [];
+    currentRound++;
+    console.log("Starting Round", currentRound);
+    if (currentRound <= totalRounds) {
+      //  crnt = 0;
+        Rounds(user_list);
+    } else {
+        console.log("Game ended");
+        const user = getCurrentUser(socket.id);
+        console.log(user.roomID,getRoomUsers(user.roomID));
+        let userList = user_list;
+
+        userList.sort((a,b)=>b.points-a.points);
+        console.log('User List sorted \n');
+        console.log(userList);
+        // Handle game end logic
+        currentRound =0;
+    }
+}
+
+var right_word;
+
+function Rounds(user_list) {
+    let counter = 0;
+    // crnt = 0;
+    for (let i = 0; i < user_list.length; i++) {
+        let user = user_list[i];
+        
+        // console.log(`crnt 0 hua kya : ${crnt}`);
+        setTimeout(() => {
+            io.to(user.roomID).emit('startTimer', 10);
+            io.to(user_list[i].roomID).emit('startRound',currentRound);
+             
+            const word = randomWordSlugs.generateSlug(1,{format : "title"});
+            io.to(user.roomID).emit('checker',{word,id : user.id});
+            
+            // console.log(word);
+            // console.log("Current user id : ",user.id);
+            io.to(user.id).emit('checkEmit',currentRound);
+            io.to(user.id).emit('canDraw',true);
+            io.to(user.id).emit('wordToDraw', word);
+
+            const wordLength = word.length;
+            user_list.filter(u => u.id !== user.id).forEach(otherUser => {
+              io.to(otherUser.id).emit('cantDraw',(false));
+              io.to(otherUser.id).emit('wordLength', wordLength);
+          });
+            // socket.broadcast.to(user.roomID).emit('wordLength', wordLength);
+            crnt = 0;
+            console.log(`crnt 0 hua kya : ${crnt}`);
+            console.log(user, "Turn ", (i + 1), " of Round ", currentRound);
+            setTimeout(() => {
+                counter++;
+                
+                if (counter === user_list.length) {
+                  // socket.emit('Overlaying',(5));
+                    setTimeout(() => {
+                        startRound(user_list); 
+                    }, 5000);
+                  // socket.emit('HideOverlay',(5));
+                }
+            }, 10000); 
+        }, i * 10000); 
+    }
+}
+});
+
+
 
 app.use(express.static('public'));
 

@@ -5,10 +5,13 @@ const roomName = document.querySelector('.roomCode');
 const userList = document.getElementById('joinedUsersList');
 const startGameBtn = document.getElementById('startGameBtn');
 const socket = io();
-
+const botName = 'Game Bot';
+var crnt_user ;
 
 let brushColor = '#000000';
 let brushSize = 5;
+
+var right_word = 'random';
 
 
 // Getting username and room from URL
@@ -18,14 +21,14 @@ var { username, roomID } = Qs.parse(location.search, {
 
 console.log('here',username,roomID);
 var rrr;
+
+
 // Join the room or create a new one
 if (roomID === undefined) {
   // If no room is provided, generate a random room code
   roomID = generateRoomCode();
   rrr = roomID;
   console.log(username, roomID);
-//   socket.emit('joinRoom',{username,roomID});
-
 } else {
   console.log(username, roomID); 
 }
@@ -44,10 +47,48 @@ socket.on('message', (message) => {
   console.log(message);
   // Function for outing the message in the message box
   outputMessage(message);
-
   // Automated scrolling of the message tab
   chtMessages.scrollTop = chtMessages.scrollHeight;
 });
+
+socket.on('message_checking',({msg,crctMsg,normalMsg,id})=>{
+     if(id===crnt_user){
+    console.log(`Message_checking : ${msg} : ${crctMsg} : ${normalMsg} :${right_word}`);
+     }
+     else{
+    if(msg.toLowerCase()===right_word.toLowerCase()){
+      outputMessage(crctMsg);
+      console.log(`sabko wale fxn me id : ${id}`);
+      socket.emit('increase_points',id);
+      console.log('sabko mila k nai');
+    }
+    else{
+      console.log('ek ko mila');
+      outputMessage(normalMsg);
+    }
+    chtMessages.scrollTop = chtMessages.scrollHeight;
+  }
+})
+
+socket.on('Overlaying',(value)=>{
+  displayOverlay();
+})
+
+socket.on('HideOverlay',(value)=>{
+  hideOverlay();
+})
+
+function displayOverlay() {
+  var overlay = document.getElementById('overlay');
+  // var main_con = document.getElementById('MainContainer');
+  overlay.style.display = 'block';
+}
+
+// Function to hide the overlay
+function hideOverlay() {
+  var overlay = document.getElementById('overlay');
+  overlay.style.display = 'none';
+}
 
 
   socket.on('redirect', (url) => {
@@ -124,8 +165,16 @@ function outputUser(users){
       });
 }
 
+let candraw = true;
+
+socket.on('cantDraw',(value)=>{
+  candraw = value;
+});
 
 
+socket.on('canDraw',(value)=>{
+  candraw = value;
+});
 
 //CANVAS PART
 
@@ -140,6 +189,7 @@ let y;
 let mousedown = false;
 
 window.onmousedown = (e) =>{
+  if(!candraw) return;
   let left = e.clientX 
   let right = e.clientY
   ctx.lineWidth = brushSize;
@@ -159,6 +209,7 @@ socket.on('onDown',({x,y})=>{
 })
 
 window.onmouseup = (e) =>{
+  if(!candraw) return;
   mousedown = false;
 }
 
@@ -272,7 +323,6 @@ socket.on('hostStatus', (isHost) => {
       console.log('game is starting');
       socket.emit('startGame');
     });
-    // startButton.removeAttribute('disabled');
     
   } else {
    
@@ -287,32 +337,25 @@ socket.on('hostStatus', (isHost) => {
 
 //IMPLEMENTING ROUND PARTS
 
-// Add event listener for starting a new round
-socket.on('startRound', (roundNumber) => {
-  console.log(`Starting round ${roundNumber}`);
-  // Implement logic to start a new round, e.g., reset canvas, clear chat, etc.
-});
 
-// Event listener to receive the word to draw
 socket.on('wordToDraw', (word) => {
   console.log(`Word to draw: ${word}`);
-  // Implement logic to display the word for the drawing player
-});
-
-// Event listener to receive the word length
-socket.on('wordLength', (length) => {
-  console.log(`Word length: ${length}`);
-  // Implement logic to display the word length for guessing players
-});
-
-// Event listener for game over
-socket.on('gameOver', () => {
-  console.log('Game over');
   
 });
 
 
+socket.on('wordLength', (length) => {
+  console.log(`Word length: ${length}`);
+});
+
+// Event listener for game over
+socket.on('gameOver', () => {
+  console.log('Game over')  
+});
+
+
 socket.on('wordToDraw', (word) => {
+  // right_word = word;
   console.log(`Word to draw: ${word}`);
   displayWordToDraw(word);
 });
@@ -320,13 +363,18 @@ socket.on('wordToDraw', (word) => {
 
 socket.on('wordLength', (length) => {
   console.log(`Word length: ${length}`);
- 
   displayWordLength(length);
+});
+
+
+
+socket.on('checkEmit',(number)=>{
+  console.log("check emit is working here");
 });
 
 function displayWordToDraw(word) {
   const wordToGuess = document.getElementById('wordToGuess');
-  wordToGuess.innerText = `Word to Guess: ${word}`;
+  wordToGuess.innerText = `Word to Draw: ${word}`;
 }
 
 // Function to display the word length for guessing players
@@ -335,3 +383,51 @@ function displayWordLength(length) {
   wordToGuess.innerText = `Word Length: ${length}`;
 
 }
+
+
+//ROUND DETAILS
+
+
+socket.on('startRound', (roundNumber) => {
+  // Update the UI to display the current round number
+  // Reset the canvas
+  clearCanvas();
+  console.log(`Starting round ${roundNumber}`);
+  displayRoundNumber(roundNumber); // Function to display current round
+  startTimer(10); // Function to start the timer
+});
+
+function displayRoundNumber(roundNumber) {
+  const roundNumberElement = document.getElementById('roundNumber');
+  if(roundNumber<=3){
+  roundNumberElement.innerText = `Round ${roundNumber}`;}
+  else{
+    roundNumberElement.innerText = `Game Ended`;
+  }
+}
+
+socket.on('startTimer',(duration)=>{
+  let countdown = duration;
+  const countdownElement = document.getElementById('countdown');
+
+  // Update the countdown every second
+  const timerInterval = setInterval(() => {
+      countdown--;
+      countdownElement.innerText = `${countdown}s`;
+
+      if (countdown <= 0) {
+        clearCanvas();
+          clearInterval(timerInterval);
+          // Handle timer expiration here (switch to the next user or end round)
+      }
+  }, 1000);
+})
+
+
+//checking 
+socket.on('checker',({word,id})=>{
+  right_word = word;
+  crnt_user = id;
+  console.log(`checker wrk : ${right_word}`);
+})
+

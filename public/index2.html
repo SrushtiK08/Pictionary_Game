@@ -11,53 +11,65 @@
 </head>
 <body>
 
-  <div id="leftPart">
-    <div id="userList">
-      <h2 id="room-head">Users Joined</h2>
-      <!-- Display the list of users joined -->
-      <ul id="joinedUsersList">
-      </ul>
-    </div>
-    <div id="roomControls">
-      <button id="startGameBtn">Start Game</button>
-      <button id="leaveRoomBtn" onclick="window.location.href='index.html';">Leave Room</button>
-    </div>
-    <div class="roomCode">
-      <!-- Room Name to be displayed -->
-    </div>
-  </div>
-
-  <div id="middlePart">
-    <header>
-      <h1>Time Remaining: <span id="countdown">60s</span></h1>
-      <h2> <span id="wordToGuess">Word to Guess: Example</span></h2>
-    </header>
-    <canvas id="drawingCanvas" width="600" height="400"></canvas>
-   
-    <div id="drawTools">
-      <label for="brushColor">Brush Color:</label>
-      <input  type="color" id="brushColor" value="#000000">
-      <label for="brushSize">Brush Size:</label>
-      <input type="range" id="brushSize" min="1" max="20" value="5">
-      <button id="eraserBtn">Clear</button>
-    </div>
-  </div>
-
-  <div id="rightPart">
-    <h2 id="room-head">Room Messages</h2>
-    <div class="msgBox">
-
-      <!-- <div class="msgs">
-         Display chat messages here 
-      </div> -->
-    </div>
-      <div class="msgInputs">
-        <form id="msg-form">
-          <input type="text" id="messageInput" required autocomplete="off"placeholder="Type your message...">
-        <button id="sendMsgBtn">Send</button>
-        </form>
+ 
+    <div id="leftPart">
+      <div id="userList">
+        <h2 id="room-head">Users Joined</h2>
+        <!-- Display the list of users joined -->
+        <ul id="joinedUsersList">
+        </ul>
       </div>
-  </div>
+      <div id="roomControls">
+        <button id="startGameBtn" >Start Game</button>
+
+        <button id="leaveRoomBtn" onclick="window.location.href='index.html';">Leave Room</button>
+      </div>
+      <div class="roomCode">
+        <!-- Room Name to be displayed -->
+      </div>
+    </div>
+  
+    <div id="middlePart">
+      <header>
+        <h1>Time Remaining: <span id="countdown">60s</span></h1>
+        <h2> <span id="wordToGuess">Word to Guess: Example</span></h2>
+        <h2><span id = "roundNumber">Current Round : 1</span></h2>
+      </header>
+      <canvas id="drawingCanvas" width="600" height="400"></canvas>
+     
+      <div id="drawTools">
+        <label for="brushColor">Brush Color:</label>
+        <input  type="color" id="brushColor" value="#000000">
+        <label for="brushSize">Brush Size:</label>
+        <input type="range" id="brushSize" min="1" max="20" value="5">
+        <button id="eraserBtn">Clear</button>
+      </div>
+    </div>
+  
+    <div id="rightPart">
+      <h2 id="room-head">Room Messages</h2>
+      <div class="msgBox">
+  
+        <!-- <div class="msgs">
+           Display chat messages here 
+        </div> -->
+      </div>
+        <div class="msgInputs">
+          <form id="msg-form">
+            <input type="text" id="messageInput" required autocomplete="off"placeholder="Type your message...">
+          <button id="sendMsgBtn">Send</button>
+          </form>
+        </div>
+    </div>
+
+
+  <!-- <div id="overlay" onClick="hideOverlay()">
+    <div id="overlay-content">
+      <h1>Welcome to the Overlay Page!</h1>
+      <p>This is some overlay content.</p>
+     
+    </div>
+  </div> -->
 
   <!-- <script src="app.js"></script> -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qs/6.11.2/qs.min.js" integrity="sha512-vCegEXqPUYpZsTGz2lk0jaQ1psxtFeniVJACAXhMVxuoYa/N4nZkjoVFOxLwP7uGeQOoemiz7DQrIpRTj4IBPw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
@@ -65,7 +77,10 @@
   <!-- <script>
     const socket = io();
   </script> -->
+  
   <script src="app.js"></script>
+ 
+
   <!-- <script src="app2.js"></script> -->
  
 

@@ -4,7 +4,7 @@ var users = [];
 //Join user to chat
 
 function userJoin(id,username,roomID){
-    var user = {id,username,roomID};
+    var user = {id,username,roomID,points : 0};
 
     users.push(user);
 
