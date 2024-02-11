@@ -51,6 +51,15 @@ h2 {
     -webkit-text-fill-color: transparent;
 }
 
+h3 {
+  background: #2d6121; /* Darker shade of green */
+  background: -webkit-linear-gradient(to right, #063d06, #1b9845, #075311); /* Gradient from dark to light green */
+  background: linear-gradient(to right, #063d06, #1b9845, #075311);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
 #rightPart {
 	max-width: 1100px;
 	background: var(--light-color);
@@ -209,6 +218,21 @@ h2 {
              
 }
 
+
+
+#timer {
+  display: flex;
+  align-items: center; /* Vertical alignment */
+  justify-content: center; /* Horizontal alignment */
+  color: #000000;
+  font-style: italic;
+}
+
+#TimerBig{
+  display: flex;
+  align-items: center; /* Vertical alignment */
+  justify-content: center; 
+}
 
 .popup > *{
   margin: 15px 0px;

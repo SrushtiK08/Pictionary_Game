@@ -70,26 +70,6 @@ socket.on('message_checking',({msg,crctMsg,normalMsg,id})=>{
   }
 })
 
-// socket.on('Overlaying',(value)=>{
-//   displayOverlay();
-// })
-
-// socket.on('HideOverlay',(value)=>{
-//   hideOverlay();
-// })
-
-// function displayOverlay() {
-//   var overlay = document.getElementById('overlay');
-//   // var main_con = document.getElementById('MainContainer');
-//   overlay.style.display = 'block';
-// }
-
-// // Function to hide the overlay
-// function hideOverlay() {
-//   var overlay = document.getElementById('overlay');
-//   overlay.style.display = 'none';
-// }
-
 
   socket.on('redirect', (url) => {
     window.location.href = url;
@@ -188,6 +168,7 @@ let y;
 
 let mousedown = false;
 
+
 window.onmousedown = (e) =>{
   if(!candraw) return;
   let left = e.clientX 
@@ -196,30 +177,42 @@ window.onmousedown = (e) =>{
   ctx.lineCap = 'round';
   ctx.strokeStyle = brushColor;
   ctx.moveTo(x - canvas.offsetLeft, y- canvas.offsetTop);
-  socket.emit('down', { x, y, color: brushColor });
+  socket.emit('down', { x, y, color: brushColor , size : brushSize});
   mousedown = true;
+  
 };
 
-socket.on('onDown',({x,y})=>{
+socket.on('onDown',({x,y,color,size})=>{
   
-  ctx.lineWidth = brushSize;
+  // ctx.lineWidth = brushSize;
   ctx.lineCap = 'round';
-  ctx.strokeStyle = brushColor;
+  ctx.lineWidth = size;
+  ctx.strokeStyle = color;
   ctx.moveTo(x - canvas.offsetLeft, y - canvas.offsetTop);
 })
+
 
 window.onmouseup = (e) =>{
   if(!candraw) return;
   mousedown = false;
+  socket.emit('up',({x :e.clientX,y : e.clientY,color :e.color,size :e.size}))
+  ctx.stroke();
+  ctx.beginPath();
 }
 
-socket.on('onDraw',({x,y,color})=>{
+socket.on('onDraw',({x,y,color,size})=>{
   ctx.lineWidth = brushSize;
     ctx.lineCap = 'round';
     ctx.strokeStyle = color;
+    ctx.lineWidth = size;
     ctx.lineTo(x - canvas.offsetLeft, y - canvas.offsetTop);
-    ctx.stroke();
+    ctx.stroke();  
 })
+
+socket.on('onUp',({x,y,color,size})=>{
+     ctx.stroke();
+     ctx.beginPath();
+});
 
 window.onmousemove = (e) =>{
   x = e.clientX;
@@ -228,7 +221,8 @@ window.onmousemove = (e) =>{
 
     if(mousedown){
       const color = brushColor;
-      socket.emit('draw',{x,y,color});
+      const size = brushSize
+      socket.emit('draw',{x,y,color,size});
     ctx.lineWidth = brushSize;
     ctx.lineCap = 'round';
     ctx.strokeStyle = color;
@@ -254,12 +248,14 @@ const brushColorInput = document.getElementById('brushColor');
 
     // Receive brush color change from other clients
 socket.on('brushColorChanged', (color) => {
+  // ctx.closePath();
   brushColor = color;
 });
   
     // Brush size input
     const brushSizeInput = document.getElementById('brushSize');
     brushSizeInput.addEventListener('input', () => {
+      // ctx.closePath();
       brushSize = brushSizeInput.value;
     });
   
@@ -271,6 +267,7 @@ socket.on('brushColorChanged', (color) => {
 
 // Update brush color
 brushColorInput.addEventListener('input', () => {
+  // ctx.closePath();
   brushColor = brushColorInput.value;
   socket.broadcast.emit('brushColorChanged', brushColor);
 });
@@ -433,11 +430,29 @@ socket.on('checker',({word,id})=>{
 
 socket.on('Overlaying',(user)=>{
   // console.log(`overlaying : ${value}`);
+  let timerInSeconds = 5;
+
   const classAdd = document.getElementById('PopContainer');
-  classAdd.innerHTML = `<h2>Next User to draw : ${user} <\h2>`;
+  classAdd.innerHTML = `<h3 id="TimerBig">Next User to draw : ${user}<\h3>
+  <p id="timer"><span>${timerInSeconds}</span> </p>`;
+
+  // Display the popup
   
+  const userAdd = document.getElementById('UserScores');
+  userAdd.innerHTML=``;
+  // Start the countdown timer
+  const timerElement = document.getElementById('timer');
+  const countdown = setInterval(() => {
+    timerInSeconds--;
+    timerElement.innerHTML = `<span>${timerInSeconds}</span>`;
+
+    if (timerInSeconds <= 0) {
+      clearInterval(countdown);
+    }
+  }, 1000);
+
   displayPop();
-})
+});
 
 socket.on('HideOverlay',(value)=>{
   hidePop();
@@ -446,19 +461,16 @@ socket.on('HideOverlay',(value)=>{
 socket.on('EndDetails',({user_list,currentRound})=>{
   const classAdd = document.getElementById('PopContainer');
   classAdd.innerHTML = `<h2>Current LeaderBoard for Round ${currentRound}<\h2>`;
+  const userAdd = document.getElementById('UserScores');
+  // const userAdd = document.getElementById('UserScores');
+  userAdd.innerHTML=``;
   user_list.forEach((user) => {
       const li = document.createElement('li');
 
-      // Create a new <i> element with a Font Awesome icon
-      // const iconElement = document.createElement('i');
-      // iconElement.classList.add('fas', 'fa fa-user-circle-o'); 
-      // li.appendChild(iconElement);
-
-      // Set the username as text content of the <li>
       li.appendChild(document.createTextNode(` ${user.username} : ${user.points}`));
 
       // Append the <li> to the user list
-      classAdd.appendChild(li);
+      userAdd.appendChild(li);
     });
 
     displayPop();
@@ -467,19 +479,15 @@ socket.on('EndDetails',({user_list,currentRound})=>{
 socket.on('FinalRank',(user_list)=>{
   const classAdd = document.getElementById('PopContainer');
   classAdd.innerHTML = `<h2>Final LeaderBoard <\h2>`;
+  const userAdd = document.getElementById('UserScores');
+  userAdd.innerHTML=``;
   user_list.forEach((user) => {
       const li = document.createElement('li');
 
-      // Create a new <i> element with a Font Awesome icon
-      // const iconElement = document.createElement('i');
-      // iconElement.classList.add('fas', 'fa fa-user-circle-o'); 
-      // li.appendChild(iconElement);
-
-      // Set the username as text content of the <li>
       li.appendChild(document.createTextNode(` ${user.username} : ${user.points}`));
 
       // Append the <li> to the user list
-      classAdd.appendChild(li);
+      userAdd.appendChild(li);
     });
 
     displayPop();

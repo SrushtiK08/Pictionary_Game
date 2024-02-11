@@ -12,7 +12,8 @@ const randomWordSlugs = require('random-word-slugs');
 const app = express();
 const server = http.createServer(app);
 const io = socketio(server);
-let currentColor = '#000000'; 
+let currentColor = '#000000';
+let currentSize = 5; 
 
 const port = 3000;
 
@@ -90,7 +91,8 @@ io.on('connection', (socket) => {
     if (user) {
       // console.log(data.color);
       currentColor = data.color || currentColor;
-      io.to(user.roomID).emit('onDraw', { x: data.x, y: data.y ,color: data.color });
+      currentSize = data.size || currentSize ;
+      io.to(user.roomID).emit('onDraw', { x: data.x, y: data.y ,color: data.color,size : data.size });
     }
   });
  
@@ -98,10 +100,19 @@ io.on('connection', (socket) => {
    socket.on('down',(data)=>{
     const user = getCurrentUser(socket.id);
     if (user) {
-      io.to(user.roomID).emit('onDown', { x: data.x, y: data.y, color : data.color });
+      io.to(user.roomID).emit('onDown', { x: data.x, y: data.y, color : data.color , size: data.size});
     }
    });
 
+
+   socket.on('up',(data)=>{
+    const user = getCurrentUser(socket.id);
+    if (user) {
+      io.to(user.roomID).emit('onUp', { x: data.x, y: data.y, color : data.color,size : data.size });
+    }
+   })
+
+   
   // Listening for chat messages
   socket.on('chatMessage', (msg) => {
     const user = getCurrentUser(socket.id);
