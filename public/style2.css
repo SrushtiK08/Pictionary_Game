@@ -85,7 +85,9 @@ h3 {
   #userList {
     flex-grow: 1;
   }
-  
+  #countdown{
+    color : black;
+  }
   #roomControls, #roomCode {
     margin-top: 20px;
   }

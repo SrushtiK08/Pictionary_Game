@@ -216,7 +216,7 @@ function Rounds(user_list) {
       
 
         setTimeout(() => {
-            io.to(user.roomID).emit('startTimer', 10);
+            io.to(user.roomID).emit('startTimer', 30);
             io.to(user_list[i].roomID).emit('startRound',currentRound);
              
             const word = randomWordSlugs.generateSlug(1,{format : "title"});
@@ -249,16 +249,16 @@ function Rounds(user_list) {
                       // io.to(user.roomID).emit('HideOverlay',(5));
                       io.to(user.roomID).emit('HideEndDetails',(user.roomID));
                         startRound(user_list); 
-                    }, 5000); 
+                    }, 6000); 
                 }
                 else if(counter !== user_list.length){
                   io.to(user.roomID).emit('Overlaying',(user_list[i+1].username));
                 setTimeout(()=>{
                   io.to(user.roomID).emit('HideOverlay',(5)); 
-                },5000);
+                },6000);
                 }
-            }, 10000); 
-        }, i*15000);
+            }, 30000); 
+        }, i*36000);
          
         // console.log(`${user.username} has waited ${i*10000}`);
     }

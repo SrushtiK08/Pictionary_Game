@@ -377,7 +377,8 @@ function displayWordToDraw(word) {
 // Function to display the word length for guessing players
 function displayWordLength(length) {
   const wordToGuess = document.getElementById('wordToGuess');
-  wordToGuess.innerText = `Word Length: ${length}`;
+  const underscores = ' _ '.repeat(length); // Constructs a string of underscores with the specified length
+  wordToGuess.innerText = `Word : ${underscores}`;
 
 }
 
