@@ -70,25 +70,25 @@ socket.on('message_checking',({msg,crctMsg,normalMsg,id})=>{
   }
 })
 
-socket.on('Overlaying',(value)=>{
-  displayOverlay();
-})
+// socket.on('Overlaying',(value)=>{
+//   displayOverlay();
+// })
 
-socket.on('HideOverlay',(value)=>{
-  hideOverlay();
-})
+// socket.on('HideOverlay',(value)=>{
+//   hideOverlay();
+// })
 
-function displayOverlay() {
-  var overlay = document.getElementById('overlay');
-  // var main_con = document.getElementById('MainContainer');
-  overlay.style.display = 'block';
-}
+// function displayOverlay() {
+//   var overlay = document.getElementById('overlay');
+//   // var main_con = document.getElementById('MainContainer');
+//   overlay.style.display = 'block';
+// }
 
-// Function to hide the overlay
-function hideOverlay() {
-  var overlay = document.getElementById('overlay');
-  overlay.style.display = 'none';
-}
+// // Function to hide the overlay
+// function hideOverlay() {
+//   var overlay = document.getElementById('overlay');
+//   overlay.style.display = 'none';
+// }
 
 
   socket.on('redirect', (url) => {
@@ -431,3 +431,79 @@ socket.on('checker',({word,id})=>{
   console.log(`checker wrk : ${right_word}`);
 })
 
+socket.on('Overlaying',(user)=>{
+  // console.log(`overlaying : ${value}`);
+  const classAdd = document.getElementById('PopContainer');
+  classAdd.innerHTML = `<h2>Next User to draw : ${user} <\h2>`;
+  
+  displayPop();
+})
+
+socket.on('HideOverlay',(value)=>{
+  hidePop();
+})
+
+socket.on('EndDetails',({user_list,currentRound})=>{
+  const classAdd = document.getElementById('PopContainer');
+  classAdd.innerHTML = `<h2>Current LeaderBoard for Round ${currentRound}<\h2>`;
+  user_list.forEach((user) => {
+      const li = document.createElement('li');
+
+      // Create a new <i> element with a Font Awesome icon
+      // const iconElement = document.createElement('i');
+      // iconElement.classList.add('fas', 'fa fa-user-circle-o'); 
+      // li.appendChild(iconElement);
+
+      // Set the username as text content of the <li>
+      li.appendChild(document.createTextNode(` ${user.username} : ${user.points}`));
+
+      // Append the <li> to the user list
+      classAdd.appendChild(li);
+    });
+
+    displayPop();
+})
+
+socket.on('FinalRank',(user_list)=>{
+  const classAdd = document.getElementById('PopContainer');
+  classAdd.innerHTML = `<h2>Final LeaderBoard <\h2>`;
+  user_list.forEach((user) => {
+      const li = document.createElement('li');
+
+      // Create a new <i> element with a Font Awesome icon
+      // const iconElement = document.createElement('i');
+      // iconElement.classList.add('fas', 'fa fa-user-circle-o'); 
+      // li.appendChild(iconElement);
+
+      // Set the username as text content of the <li>
+      li.appendChild(document.createTextNode(` ${user.username} : ${user.points}`));
+
+      // Append the <li> to the user list
+      classAdd.appendChild(li);
+    });
+
+    displayPop();
+})
+
+socket.on('HideEndDetails',(RoomId)=>{
+  hidePop();
+})
+
+function displayPop(){
+  document.body.classList.add("active-popup");
+}
+
+function hidePop(){
+  document.body.classList.remove("active-popup");
+}
+
+document.getElementById('openPopup').addEventListener('click',function(){
+  console.log("here")
+  document.body.classList.add("active-popup");
+})
+
+
+
+document.getElementById('popup-close').addEventListener("click",function(){
+  document.body.classList.remove("active-popup");
+});

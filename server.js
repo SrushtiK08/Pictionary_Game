@@ -118,16 +118,16 @@ io.on('connection', (socket) => {
     if(socket.id===id){
     const user = getCurrentUser(id);
     // console.log(`current user wala id dekhte hein : ${user}`);
-    console.log(`crnt : ${crnt}`);
+    // console.log(`crnt : ${crnt}`);
     let size = getRoomUsers(user.roomID).length;
 
-    console.log(`increase_point wala fxn : ${getRoomUsers(user.roomID).length}`);
+    // console.log(`increase_point wala fxn : ${getRoomUsers(user.roomID).length}`);
     const point = 10*(getRoomUsers(user.roomID).length - (crnt)%size);
 
     user.points += point;
     crnt++;
 
-    console.log(`${user.username} ke points : ${user.points}`);
+    // console.log(`${user.username} ke points : ${user.points}`);
     }
   })
 
@@ -162,19 +162,30 @@ io.on('connection', (socket) => {
 });
 
 function startRound(user_list) {
+  // const user = getCurrentUser(socket.id);
+  // console.log(user);
    roundGuesses[currentRound] = [];
     currentRound++;
     console.log("Starting Round", currentRound);
     if (currentRound <= totalRounds) {
       //  crnt = 0;
-        Rounds(user_list);
+        
+        // io.to(user.roomID).emit('Overlaying',(5));
+        // setTimeout(() => {
+          Rounds(user_list);
+        //   io.to(user.roomID).emit('HideOverlay',(5));
+        //     // startRound(user_list); 
+        // }, 5000);
     } else {
         console.log("Game ended");
         const user = getCurrentUser(socket.id);
         console.log(user.roomID,getRoomUsers(user.roomID));
         let userList = user_list;
 
+        
+
         userList.sort((a,b)=>b.points-a.points);
+        io.to(user.roomID).emit('FinalRank',(user_list));
         console.log('User List sorted \n');
         console.log(userList);
         // Handle game end logic
@@ -191,6 +202,8 @@ function Rounds(user_list) {
         let user = user_list[i];
         
         // console.log(`crnt 0 hua kya : ${crnt}`);
+      
+
         setTimeout(() => {
             io.to(user.roomID).emit('startTimer', 10);
             io.to(user_list[i].roomID).emit('startRound',currentRound);
@@ -211,20 +224,32 @@ function Rounds(user_list) {
           });
             // socket.broadcast.to(user.roomID).emit('wordLength', wordLength);
             crnt = 0;
-            console.log(`crnt 0 hua kya : ${crnt}`);
+            // console.log(`crnt 0 hua kya : ${crnt}`);
             console.log(user, "Turn ", (i + 1), " of Round ", currentRound);
+            
+           
             setTimeout(() => {
-                counter++;
-                
-                if (counter === user_list.length) {
-                  // socket.emit('Overlaying',(5));
+                counter++; 
+                if (counter === user_list.length && currentRound!=4) {
+
+                   io.to(user.roomID).emit('EndDetails',({user_list,currentRound}));
+                   console.log('Got here at End Details');
                     setTimeout(() => {
+                      // io.to(user.roomID).emit('HideOverlay',(5));
+                      io.to(user.roomID).emit('HideEndDetails',(user.roomID));
                         startRound(user_list); 
-                    }, 5000);
-                  // socket.emit('HideOverlay',(5));
+                    }, 5000); 
+                }
+                else if(counter !== user_list.length){
+                  io.to(user.roomID).emit('Overlaying',(user_list[i+1].username));
+                setTimeout(()=>{
+                  io.to(user.roomID).emit('HideOverlay',(5)); 
+                },5000);
                 }
             }, 10000); 
-        }, i * 10000); 
+        }, i*15000);
+         
+        // console.log(`${user.username} has waited ${i*10000}`);
     }
 }
 });
@@ -239,6 +264,6 @@ app.get('/', (req, res) => {
 
 function generateRoomCode() {
   var ans = Math.random().toString(36).substring(2, 8).toUpperCase();
-  console.log(ans);
+  // console.log(ans);
   return ans;
 }
