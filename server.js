@@ -21,19 +21,6 @@ const port = process.env.PORT || 3000;
 let connections = []
 
 
-// Random word generator
-// const randomWord = new RandomWordSlugs();
-
-
-// Categories for random words
-const categories = ['noun', 'animals', 'food'];
-
-// Random word options
-const options = {
-  category: categories[Math.floor(Math.random() * categories.length)]
-};
-
-
 //IMPLEMENTING THE ROUND PART
 
 let currentRound = 0;
@@ -47,8 +34,7 @@ server.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
 
-// Room data storage
-var rooms = {};
+
 var entered = {};
 io.on('connection', (socket) => {
   connections.push(socket);
